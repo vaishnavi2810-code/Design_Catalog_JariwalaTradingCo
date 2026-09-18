@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Saree Catalog</title>
+<meta name="description" content="Browse our saree designs by category." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     To add bases and designs, scroll to the BASES block at the
+     bottom of this file. Nothing here needs editing.
+     ============================================================ */
+  :root {
+    --paper:#FCF8F3; --panel:#FFFFFF; --ink:#2A1E24; --muted:#8B7A72;
+    --maroon:#7A1F3D; --maroon-d:#5E1730; --zari:#B08636; --teal:#16565A;
+    --line:#EADFD3; --radius:2px; --maxw:1240px;
+  }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Karla",system-ui,sans-serif; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  a { color:inherit; }
+  img { display:block; max-width:100%; }
+  .wrap { max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+
+  /* Masthead */
+  header.masthead { border-bottom:1px solid var(--line); background:var(--paper); }
+  .masthead-inner { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; padding:34px 0 26px; flex-wrap:wrap; }
+  .brand h1 { font-family:"Marcellus",serif; font-weight:400; font-size:clamp(30px,5vw,46px); line-height:1; margin:0; letter-spacing:.01em; }
+  .brand .rule { width:54px; height:2px; background:var(--zari); margin:14px 0 12px; }
+  .brand p { margin:0; color:var(--muted); font-size:15px; max-width:52ch; }
+  .contact-top { text-align:right; font-size:14px; color:var(--muted); line-height:1.7; }
+  .contact-top a { text-decoration:none; }
+  .contact-top a:hover { color:var(--maroon); }
+  .contact-top .loc { color:var(--ink); }
+
+  /* Hamburger */
+  .hamburger { display:none; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:8px 10px; cursor:pointer; color:var(--ink); flex-shrink:0; align-self:flex-start; margin-top:4px; }
+  .hamburger svg { display:block; }
+
+  /* Mobile drawer */
+  .drawer-back { position:fixed; inset:0; background:rgba(30,18,24,.4); z-index:50; display:none; }
+  .drawer-back.open { display:block; }
+  .drawer { position:fixed; top:0; right:0; bottom:0; width:min(300px,85vw); background:var(--panel);
+    z-index:51; transform:translateX(100%); transition:transform .25s ease;
+    display:flex; flex-direction:column; overflow-y:auto; }
+  .drawer-back.open .drawer { transform:translateX(0); }
+  .drawer-header { display:flex; justify-content:space-between; align-items:center; padding:20px;
+    border-bottom:1px solid var(--line); }
+  .drawer-header h3 { font-family:"Marcellus",serif; font-weight:400; font-size:18px; margin:0; }
+  .drawer-close { background:none; border:none; font-size:24px; cursor:pointer; color:var(--muted);
+    padding:4px 8px; line-height:1; }
+  .drawer-close:hover { color:var(--ink); }
+  .drawer-section { padding:20px; border-bottom:1px solid var(--line); }
+  .drawer-section h4 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);
+    margin:0 0 12px; font-weight:500; }
+  .drawer-contact { list-style:none; margin:0; padding:0; }
+  .drawer-contact li { padding:8px 0; }
+  .drawer-contact a { text-decoration:none; font-size:15px; display:flex; align-items:center; gap:10px; }
+  .drawer-contact a:hover { color:var(--maroon); }
+  .drawer-contact .label { font-size:12px; color:var(--muted); display:block; margin-bottom:1px; }
+  .drawer-filters { display:flex; flex-direction:column; gap:6px; }
+  .drawer-filters button { font-family:inherit; font-size:15px; color:var(--ink); background:transparent;
+    border:1px solid var(--line); border-radius:8px; padding:10px 14px; cursor:pointer; text-align:left;
+    transition:border-color .15s,background .15s,color .15s; }
+  .drawer-filters button:hover { border-color:var(--zari); }
+  .drawer-filters button[aria-pressed="true"] { background:var(--maroon); border-color:var(--maroon); color:#fff; }
+
+  /* Controls */
+  .controls { position:sticky; top:0; z-index:20;
+    background:color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter:saturate(1.1) blur(8px); border-bottom:1px solid var(--line); }
+  .controls-inner { display:flex; align-items:center; gap:12px; padding:14px 0; flex-wrap:wrap; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; flex:1 1 auto; }
+  .filter-toggle { display:none; font-family:inherit; font-size:14px; color:var(--ink); background:transparent;
+    border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer;
+    white-space:nowrap; flex-shrink:0; }
+  .filter-toggle svg { vertical-align:-2px; margin-right:4px; }
+  .chip { font-family:inherit; font-size:14px; color:var(--ink); background:transparent;
+    border:1px solid var(--line); border-radius:999px; padding:7px 15px; cursor:pointer;
+    transition:border-color .15s,color .15s,background .15s; }
+  .chip:hover { border-color:var(--zari); }
+  .chip[aria-pressed="true"] { background:var(--maroon); border-color:var(--maroon); color:#fff; }
+  .search { position:relative; flex:0 0 auto; }
+  .search input { font-family:inherit; font-size:14px; color:var(--ink); background:var(--panel);
+    border:1px solid var(--line); border-radius:999px; padding:9px 16px 9px 38px; width:240px; max-width:100%;
+    outline:none; transition:border-color .15s; }
+  .search input:focus { border-color:var(--maroon); }
+  .search svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted); }
+
+  .count { color:var(--muted); font-size:14px; padding:22px 0 4px; }
+
+  /* Base sections */
+  .base-section { margin-bottom:14px; }
+  .base-head { display:flex; align-items:baseline; gap:14px; padding:22px 0 14px;
+    border-bottom:1px solid var(--line); margin-bottom:26px; flex-wrap:wrap; }
+  .base-head h2 { font-family:"Marcellus",serif; font-weight:400; font-size:clamp(21px,2.6vw,29px); margin:0; }
+  .base-head .cnt { color:var(--muted); font-size:14px; }
+
+  /* Grid */
+  .grid { display:grid; grid-template-columns:repeat(5,1fr); gap:26px 22px; padding-bottom:44px; }
+  @media (max-width:1180px){ .grid{ grid-template-columns:repeat(4,1fr);} }
+  @media (max-width:960px) { .grid{ grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:640px) { .grid{ grid-template-columns:repeat(2,1fr); gap:22px 14px;} }
+  @media (max-width:400px) { .grid{ grid-template-columns:1fr;} }
+
+  .card { cursor:pointer; }
+  .card .thumb { position:relative; aspect-ratio:3/4; overflow:hidden; background:var(--line);
+    border:1px solid var(--line); border-radius:var(--radius); }
+  .card .thumb img { width:100%; height:100%; object-fit:contain; transition:transform .5s ease; }
+  @media (hover:hover){ .card:hover .thumb img{ transform:scale(1.04);} }
+  .card .meta { padding:10px 2px 0; }
+  .card .name { font-family:"Marcellus",serif; font-size:16px; line-height:1.2; margin:0 0 3px; }
+  .card .sub { font-size:13px; color:var(--muted); }
+  .card .price { font-size:13.5px; color:var(--ink); margin-top:2px; }
+  .code-tag { position:absolute; left:9px; bottom:9px; font-size:11.5px; letter-spacing:.04em;
+    background:color-mix(in srgb, var(--ink) 78%, transparent); color:var(--paper); padding:3px 7px; border-radius:2px; }
+
+  .placeholder { width:100%; height:100%; display:grid; place-items:center; position:relative; }
+  .placeholder .buti { width:30%; opacity:.5; }
+
+  .empty { text-align:center; color:var(--muted); padding:80px 0; font-size:16px; }
+  .empty a { color:var(--maroon); cursor:pointer; text-decoration:underline; }
+
+  .btn { display:inline-flex; align-items:center; gap:8px; font-family:inherit; font-size:15px;
+    border:none; cursor:pointer; padding:12px 20px; border-radius:var(--radius); text-decoration:none; transition:background .15s; }
+  .btn-wa { background:var(--maroon); color:#fff; }
+  .btn-wa:hover { background:var(--maroon-d); }
+
+  /* Modal */
+  .modal-back { position:fixed; inset:0; background:rgba(30,18,24,.55); display:none;
+    align-items:center; justify-content:center; padding:24px; z-index:100; }
+  .modal-back.open { display:flex; }
+  .modal { background:var(--panel); border-radius:var(--radius); max-width:900px; width:100%;
+    max-height:90vh; overflow:auto; display:grid; grid-template-columns:1fr 1fr; }
+  @media (max-width:680px){ .modal{ grid-template-columns:1fr;} }
+  .modal .m-img { background:var(--line); aspect-ratio:3/4; }
+  .modal .m-img img { width:100%; height:100%; object-fit:contain; }
+  .modal .m-img .placeholder { height:100%; }
+  .modal .m-body { padding:34px 32px; position:relative; }
+  .modal .m-base { color:var(--muted); font-size:14px; margin-bottom:6px; }
+  .modal .m-body h2 { font-family:"Marcellus",serif; font-weight:400; font-size:26px; margin:0 0 4px; }
+  .modal .m-code { color:var(--zari); font-size:14px; letter-spacing:.05em; margin-bottom:20px; }
+  .modal dl { margin:0 0 24px; display:grid; grid-template-columns:auto 1fr; gap:9px 18px; font-size:15px; }
+  .modal dt { color:var(--muted); }
+  .modal dd { margin:0; }
+  .modal .desc { color:var(--ink); font-size:15px; line-height:1.6; margin:0 0 26px; }
+  .modal .close { position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer;
+    font-size:26px; line-height:1; color:var(--muted); padding:4px 8px; z-index:2; }
+  .modal .close:hover { color:var(--ink); }
+  .modal .m-img { cursor:zoom-in; position:relative; }
+  .modal .zoom-hint { position:absolute; bottom:12px; right:12px; background:color-mix(in srgb, var(--ink) 70%, transparent);
+    color:var(--paper); font-size:12px; padding:4px 10px; border-radius:999px; pointer-events:none;
+    display:flex; align-items:center; gap:5px; }
+  .modal .zoom-hint svg { flex-shrink:0; }
+
+  /* Full-screen zoom viewer */
+  .zoom-back { position:fixed; inset:0; background:rgba(10,6,8,.92); z-index:200; display:none;
+    flex-direction:column; touch-action:none; }
+  .zoom-back.open { display:flex; }
+  .zoom-top { display:flex; justify-content:space-between; align-items:center; padding:12px 16px;
+    color:#fff; font-size:14px; flex-shrink:0; }
+  .zoom-top .zoom-title { font-family:"Marcellus",serif; font-size:16px; opacity:.85; }
+  .zoom-top button { background:none; border:none; color:#fff; font-size:28px; cursor:pointer;
+    padding:4px 8px; line-height:1; opacity:.7; }
+  .zoom-top button:hover { opacity:1; }
+  .zoom-container { flex:1; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }
+  .zoom-container img { max-width:100%; max-height:100%; object-fit:contain; transform-origin:0 0;
+    transition:transform .2s ease; user-select:none; -webkit-user-select:none; }
+  .zoom-container .placeholder { width:100%; height:100%; }
+  .zoom-controls { display:flex; justify-content:center; gap:12px; padding:14px; flex-shrink:0; }
+  .zoom-btn { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:#fff;
+    border-radius:999px; width:44px; height:44px; font-size:20px; cursor:pointer;
+    display:grid; place-items:center; transition:background .15s; }
+  .zoom-btn:hover { background:rgba(255,255,255,.22); }
+  .zoom-btn:disabled { opacity:.3; cursor:default; }
+
+  /* ---- Tablet ---- */
+  @media (max-width:768px){
+    .wrap { padding:0 16px; }
+    .masthead-inner { padding:24px 0 20px; gap:16px; }
+    .brand p { font-size:14px; }
+    .contact-top { display:none; }
+    .hamburger { display:block; }
+    .filters { overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; padding-bottom:2px; }
+    .filters::-webkit-scrollbar { display:none; }
+    .chip { white-space:nowrap; flex-shrink:0; }
+    .controls-inner { gap:10px; flex-wrap:nowrap; }
+    .search { flex:1 1 auto; min-width:0; }
+    .search input { width:100%; }
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width:480px){
+    .wrap { padding:0 14px; }
+    .masthead-inner { padding:18px 0 16px; flex-direction:row; align-items:center; }
+    .brand h1 { font-size:24px; }
+    .brand .rule { margin:8px 0 6px; width:36px; }
+    .brand p { display:none; }
+    .controls-inner { padding:10px 0; }
+    .filters { display:none; }
+    .filter-toggle { display:inline-flex; align-items:center; }
+    .search input { font-size:16px; padding:10px 16px 10px 38px; }
+    .base-head { padding:16px 0 10px; margin-bottom:18px; }
+    .base-head h2 { font-size:19px; }
+    .grid { gap:16px 10px; }
+    .card .name { font-size:14px; }
+    .code-tag { font-size:10.5px; left:6px; bottom:6px; }
+  }
+
+  @media (max-width:680px){
+    .modal-back { padding:0; align-items:flex-end; }
+    .modal { max-height:95vh; border-radius:12px 12px 0 0; }
+    .modal .m-img { aspect-ratio:1/1; }
+    .modal .m-body { padding:24px 20px; }
+    .modal .m-body h2 { font-size:20px; }
+    .modal .m-code { margin-bottom:14px; }
+    .modal dl { gap:7px 14px; font-size:14px; }
+    .modal .desc { font-size:14px; margin-bottom:20px; }
+    .btn { font-size:14px; padding:11px 16px; width:100%; justify-content:center; }
+  }
+
+  @media (max-width:480px){
+    footer { padding:28px 0 40px; }
+    footer .foot-grid { flex-direction:column; gap:16px; }
+    footer .foot-grid > div:last-child { text-align:left; }
+  }
+
+  footer { border-top:1px solid var(--line); padding:40px 0 56px; color:var(--muted); font-size:14px; margin-top:40px; }
+  footer .foot-grid { display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  footer .fname { font-family:"Marcellus",serif; color:var(--ink); font-size:20px; }
+  footer a { text-decoration:none; }
+  footer a:hover { color:var(--maroon); }
+
+  @media (prefers-reduced-motion:no-preference){
+    .card { opacity:0; transform:translateY(8px); animation:rise .5s ease forwards; }
+    @keyframes rise { to { opacity:1; transform:none; } }
+  }
+  :focus-visible { outline:2px solid var(--maroon); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="brand">
+      <h1 id="brandName"></h1>
+      <div class="rule"></div>
+      <p id="brandTagline"></p>
+    </div>
+    <div class="contact-top" id="contactTop"></div>
+    <button class="hamburger" id="menuBtn" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="drawer-back" id="drawerBack">
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h3 id="drawerTitle"></h3>
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
+    </div>
+    <div class="drawer-section">
+      <h4>Contact</h4>
+      <ul class="drawer-contact" id="drawerContact"></ul>
+    </div>
+    <div class="drawer-section">
+      <h4>Filter by category</h4>
+      <div class="drawer-filters" id="drawerFilters"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="controls">
+  <div class="wrap controls-inner">
+    <button class="filter-toggle" id="filterToggle">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+      <span id="filterLabel">All Categories</span>
+    </button>
+    <div class="filters" id="filters" role="group" aria-label="Filter by category"></div>
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="search" placeholder="Search categories or designs…" aria-label="Search" />
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="count" id="count"></div>
+  <div id="catalogue"></div>
+</main>
+
+<footer>
+  <div class="wrap foot-grid" id="footer"></div>
+</footer>
+
+<div class="modal-back" id="modalBack" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="zoom-back" id="zoomBack">
+  <div class="zoom-top">
+    <span class="zoom-title" id="zoomTitle"></span>
+    <button id="zoomClose" aria-label="Close zoom">&times;</button>
+  </div>
+  <div class="zoom-container" id="zoomContainer"></div>
+  <div class="zoom-controls">
+    <button class="zoom-btn" id="zoomOut" aria-label="Zoom out">&minus;</button>
+    <button class="zoom-btn" id="zoomReset" aria-label="Reset zoom">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
+    </button>
+    <button class="zoom-btn" id="zoomIn" aria-label="Zoom in">+</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1) BUSINESS DETAILS
+   whatsapp: full international number, digits only (no + or spaces).
+   India example 98765 43210  ->  "919876543210"
+   ============================================================ */
+const BUSINESS = {
+  name:      "Jariwala Trading Co.",
+  tagline:   "Quality is not expensive, it is priceless.",
+  whatsapp:  "919876543210",
+  email:     "",
+  phone:     "+91 98765 43210",
+  location:  "Surat, Gujarat",
+  instagram: ""   // handle only, or "" to hide
+};
+
+/* ============================================================
+   2) BASES — each base holds its own list of designs.
+   To add a base: copy a { name, fabric, desc, designs:[...] } block.
+   To add a design: add a { code, color, ... } object to its designs.
+
+   design fields:
+     code   - required, your design number (shown on the tile)
+     color  - the colour / combination (used as the tile title)
+     price  - optional; "" hides it
+     image  - "images/your-photo.jpg", or "" for a woven placeholder
+     colors - [main, accent] used only to draw the placeholder
+   ============================================================ */
+const BASES = [
+  {
+    name: "Balatan Butta Rich Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"BBR-01", color:"Janaki",         price:"", image:"images/Balatan_Butta_Rich_Pallu/Janaki.jpeg",         colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-02", color:"Nandini",        price:"", image:"images/Balatan_Butta_Rich_Pallu/Nandini.jpeg",        colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-03", color:"Tulsi A",        price:"", image:"images/Balatan_Butta_Rich_Pallu/Tulsi_A.jpeg",        colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-04", color:"Rohini",         price:"", image:"images/Balatan_Butta_Rich_Pallu/Rohini.jpeg",         colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-05", color:"Mango Jaal",     price:"", image:"images/Balatan_Butta_Rich_Pallu/Mango_Jaal.jpeg",     colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-06", color:"Sona",           price:"", image:"images/Balatan_Butta_Rich_Pallu/Sona.jpeg",           colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-07", color:"Mango",          price:"", image:"images/Balatan_Butta_Rich_Pallu/Mango.jpeg",          colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-08", color:"Smith 4",        price:"", image:"images/Balatan_Butta_Rich_Pallu/Smith_4.jpeg",        colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-09", color:"Bilva",          price:"", image:"images/Balatan_Butta_Rich_Pallu/Bilva.jpeg",          colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-10", color:"Durga",          price:"", image:"images/Balatan_Butta_Rich_Pallu/Durga.jpeg",          colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-11", color:"Vrunda Checks",  price:"", image:"images/Balatan_Butta_Rich_Pallu/Vrunda_Checks.jpeg",  colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-12", color:"Bajrangi",       price:"", image:"images/Balatan_Butta_Rich_Pallu/Bajrangi.jpeg",       colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-13", color:"Tulsi",          price:"", image:"images/Balatan_Butta_Rich_Pallu/Tulsi.jpeg",          colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-14", color:"Madhuri",        price:"", image:"images/Balatan_Butta_Rich_Pallu/Madhuri.jpeg",        colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-15", color:"Rudra",          price:"", image:"images/Balatan_Butta_Rich_Pallu/Rudra.jpeg",          colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-16", color:"Madhuri Jaal",   price:"", image:"images/Balatan_Butta_Rich_Pallu/Madhuri_Jaal.jpeg",   colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-17", color:"Flower Vel",     price:"", image:"images/Balatan_Butta_Rich_Pallu/Flower_Vel.jpeg",     colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-18", color:"Tilak",          price:"", image:"images/Balatan_Butta_Rich_Pallu/Tilak.jpeg",          colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-19", color:"Vaidehi",        price:"", image:"images/Balatan_Butta_Rich_Pallu/Vaidehi.jpeg",        colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-20", color:"Smith 2",        price:"", image:"images/Balatan_Butta_Rich_Pallu/Smith_2.jpeg",        colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-21", color:"Smith 1A",       price:"", image:"images/Balatan_Butta_Rich_Pallu/Smith_1A.jpeg",       colors:["#EFE7DA","#B08636"] },
+      { code:"BBR-22", color:"Vrunda A",       price:"", image:"images/Balatan_Butta_Rich_Pallu/Vrunda_A.jpeg",       colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Balatan Butta Chit Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"BBC-01", color:"DN 80", price:"", image:"images/Balatan_Butta_Chit_Pallu/DN_80.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"BBC-02", color:"DN 81", price:"", image:"images/Balatan_Butta_Chit_Pallu/DN_81.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"BBC-03", color:"DN 82", price:"", image:"images/Balatan_Butta_Chit_Pallu/DN_82.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"BBC-04", color:"DN 83", price:"", image:"images/Balatan_Butta_Chit_Pallu/DN_83.jpeg", colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Dola Rich Pallu With Broket Blouse",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"DRP-01", color:"Madhuri Jaal", price:"", image:"images/DOLA_RICH_PALLU_WITH_BROKET_BLOUSE/Madhuri_Jaal.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"DRP-02", color:"Madhuri",      price:"", image:"images/DOLA_RICH_PALLU_WITH_BROKET_BLOUSE/Madhuri.jpeg",      colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Linen Butta Chit Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"LBC-01", color:"LN 83", price:"", image:"images/LINEN_BUTTA_CHIT_PALLU/LN_83.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"LBC-02", color:"LN 82", price:"", image:"images/LINEN_BUTTA_CHIT_PALLU/LN_82.jpeg", colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Raw Butta Chit Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"RBC-01", color:"DN 80", price:"", image:"images/RAW_BUTTA_CHIT_PALLU/DN_80.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"RBC-02", color:"DN 81", price:"", image:"images/RAW_BUTTA_CHIT_PALLU/DN_81.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"RBC-03", color:"DN 82", price:"", image:"images/RAW_BUTTA_CHIT_PALLU/DN_82.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"RBC-04", color:"DN 83", price:"", image:"images/RAW_BUTTA_CHIT_PALLU/DN_83.jpeg", colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Raw Butta Rich Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"RBR-01", color:"Smith 4", price:"", image:"images/Raw_Butta_Rich_Pallu/Smith_4.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"RBR-02", color:"Tulsi A", price:"", image:"images/Raw_Butta_Rich_Pallu/Tulsi_A.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"RBR-03", color:"Janaki",  price:"", image:"images/Raw_Butta_Rich_Pallu/Janaki.jpeg",  colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Tussar Butta Chit Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"TBC-01", color:"Temple Butti", price:"", image:"images/TUSSAR_BUTTA_CHIT_PALLU/Temple_Butti.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"TBC-02", color:"S.B",          price:"", image:"images/TUSSAR_BUTTA_CHIT_PALLU/SB.jpeg",           colors:["#EFE7DA","#B08636"] },
+      { code:"TBC-03", color:"Flower Butti",  price:"", image:"images/TUSSAR_BUTTA_CHIT_PALLU/Flower_Butti.jpeg", colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Tussar Butta Rich Pallu With Broket Blouse",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"TBR-01", color:"S.B Rich Pallu", price:"", image:"images/TUSSAR_BUTTA_RICH_PALLU_WITH_BROKET_BLOUSE/SB_Rich_Pallu.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"TBR-02", color:"Box Rich Pallu", price:"", image:"images/TUSSAR_BUTTA_RICH_PALLU_WITH_BROKET_BLOUSE/Box_Rich_Pallu.jpeg", colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Tussar Gala Chit Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"TGC-01", color:"E.F",    price:"", image:"images/TUSSAR_GALA_CHIT_PALLU/EF.jpeg",     colors:["#EFE7DA","#B08636"] },
+      { code:"TGC-02", color:"J.B",    price:"", image:"images/TUSSAR_GALA_CHIT_PALLU/JB.jpeg",     colors:["#EFE7DA","#B08636"] },
+      { code:"TGC-03", color:"Temple", price:"", image:"images/TUSSAR_GALA_CHIT_PALLU/Temple.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"TGC-04", color:"Mango",  price:"", image:"images/TUSSAR_GALA_CHIT_PALLU/Mango.jpeg",  colors:["#EFE7DA","#B08636"] },
+      { code:"TGC-05", color:"J.T",    price:"", image:"images/TUSSAR_GALA_CHIT_PALLU/JT.jpeg",     colors:["#EFE7DA","#B08636"] },
+      { code:"TGC-06", color:"P.F",    price:"", image:"images/TUSSAR_GALA_CHIT_PALLU/PF.jpeg",     colors:["#EFE7DA","#B08636"] }
+    ]
+  },
+  {
+    name: "Tussar Piping Chit Pallu",
+    fabric: "",
+    desc: "",
+    designs: [
+      { code:"TPC-01", color:"J.B Piping",   price:"", image:"images/TUSSAR_PIPING_CHIT_PALLU/JB_Piping.jpeg",    colors:["#EFE7DA","#B08636"] },
+      { code:"TPC-02", color:"Mango Piping", price:"", image:"images/TUSSAR_PIPING_CHIT_PALLU/Mango_Piping.jpeg", colors:["#EFE7DA","#B08636"] },
+      { code:"TPC-03", color:"HJ Piping",    price:"", image:"images/TUSSAR_PIPING_CHIT_PALLU/HJ_Piping.jpeg",    colors:["#EFE7DA","#B08636"] }
+    ]
+  }
+];
+
+/* ============================================================
+   Catalogue engine — no need to edit below.
+   ============================================================ */
+const $ = (s,r=document)=>r.querySelector(s);
+const enc = encodeURIComponent;
+
+function waLink(baseName, d){
+  const label = d.color ? `${d.color} (design ${d.code})` : `design ${d.code}`;
+  const msg = `Hi ${BUSINESS.name}, I'm interested in ${baseName} — ${label}. Could you share the price and availability?`;
+  return `https://wa.me/${BUSINESS.whatsapp}?text=${enc(msg)}`;
+}
+function shade(hex,pct){
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255; const f=pct/100;
+  r=Math.round(r+(f<0?r:255-r)*f); g=Math.round(g+(f<0?g:255-g)*f); b=Math.round(b+(f<0?b:255-b)*f);
+  return `rgb(${r},${g},${b})`;
+}
+function placeholder(d){
+  const [a,b]=d.colors||["#7A1F3D","#B08636"];
+  const buti=`<svg class="buti" viewBox="0 0 40 40" fill="${b}" aria-hidden="true"><path d="M20 2c6 6 6 14 0 18-6-4-6-12 0-18zm0 36c-6-6-6-14 0-18 6 4 6 12 0 18zM2 20c6-6 14-6 18 0-4 6-12 6-18 0zm36 0c-6 6-14 6-18 0 4-6 12-6 18 0z" opacity=".85"/></svg>`;
+  return `<div class="placeholder" style="background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.16), transparent 60%),
+      repeating-linear-gradient(45deg, ${a} 0 7px, ${shade(a,-14)} 7px 14px)">${buti}</div>`;
+}
+function imgOrPlaceholder(d,alt){
+  return d.image
+    ? `<img src="${d.image}" alt="${alt}" loading="lazy" onerror="this.replaceWith(document.createRange().createContextualFragment(this.dataset.ph))" data-ph='${placeholder(d).replace(/'/g,"&#39;")}'/>`
+    : placeholder(d);
+}
+function title(d){ return d.color || `Design ${d.code}`; }
+
+let activeBase="All", query="";
+
+function visibleBases(){
+  const q=query.trim().toLowerCase();
+  return BASES
+    .filter(b=> activeBase==="All" || b.name===activeBase)
+    .map(b=>({ ...b, designs: b.designs.filter(d=>
+        !q || [b.name,b.fabric,d.code,d.color].filter(Boolean).join(" ").toLowerCase().includes(q)) }))
+    .filter(b=> b.designs.length);
+}
+function totalDesigns(){ return BASES.reduce((n,b)=>n+b.designs.length,0); }
+
+function renderHeader(){
+  $("#brandName").textContent=BUSINESS.name;
+  $("#brandTagline").textContent=BUSINESS.tagline;
+  const bits=[];
+  if(BUSINESS.location) bits.push(`<div class="loc">${BUSINESS.location}</div>`);
+  if(BUSINESS.phone)    bits.push(`<a href="tel:${BUSINESS.phone.replace(/\s/g,'')}">${BUSINESS.phone}</a>`);
+  if(BUSINESS.email)    bits.push(`<a href="mailto:${BUSINESS.email}">${BUSINESS.email}</a>`);
+  $("#contactTop").innerHTML=bits.join("");
+  document.title=BUSINESS.name+" — Saree Catalog";
+}
+/* Drawer */
+function openDrawer(){ $("#drawerBack").classList.add("open"); document.body.style.overflow="hidden"; }
+function closeDrawer(){ $("#drawerBack").classList.remove("open"); document.body.style.overflow=""; }
+$("#menuBtn").addEventListener("click",openDrawer);
+$("#drawerClose").addEventListener("click",closeDrawer);
+$("#drawerBack").addEventListener("click",e=>{ if(e.target.id==="drawerBack") closeDrawer(); });
+$("#filterToggle").addEventListener("click",openDrawer);
+
+function renderDrawer(){
+  $("#drawerTitle").textContent=BUSINESS.name;
+  const items=[];
+  if(BUSINESS.location)  items.push(`<li><a href="#"><span class="label">Location</span>${BUSINESS.location}</a></li>`);
+  if(BUSINESS.phone)     items.push(`<li><a href="tel:${BUSINESS.phone.replace(/\s/g,'')}"><span class="label">Phone</span>${BUSINESS.phone}</a></li>`);
+  if(BUSINESS.email)     items.push(`<li><a href="mailto:${BUSINESS.email}"><span class="label">Email</span>${BUSINESS.email}</a></li>`);
+  if(BUSINESS.whatsapp)  items.push(`<li><a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener"><span class="label">WhatsApp</span>Chat with us</a></li>`);
+  if(BUSINESS.instagram) items.push(`<li><a href="https://instagram.com/${BUSINESS.instagram}" target="_blank" rel="noopener"><span class="label">Instagram</span>@${BUSINESS.instagram}</a></li>`);
+  $("#drawerContact").innerHTML=items.join("");
+}
+function renderDrawerFilters(){
+  const names=["All",...BASES.map(b=>b.name)];
+  $("#drawerFilters").innerHTML=names.map(f=>
+    `<button aria-pressed="${f===activeBase}" data-base="${f}">${f}</button>`).join("");
+  $("#drawerFilters").querySelectorAll("button").forEach(btn=>
+    btn.addEventListener("click",()=>{
+      activeBase=btn.dataset.base;
+      renderFilters(); renderDrawerFilters(); renderCatalogue(); updateFilterLabel();
+      closeDrawer();
+    }));
+}
+function updateFilterLabel(){
+  $("#filterLabel").textContent = activeBase==="All" ? "All Categories" : activeBase;
+}
+
+function renderFilters(){
+  const names=["All",...BASES.map(b=>b.name)];
+  $("#filters").innerHTML=names.map(f=>
+    `<button class="chip" aria-pressed="${f===activeBase}" data-base="${f}">${f}</button>`).join("");
+  $("#filters").querySelectorAll(".chip").forEach(c=>
+    c.addEventListener("click",()=>{ activeBase=c.dataset.base; renderFilters(); renderDrawerFilters(); renderCatalogue(); updateFilterLabel(); }));
+}
+function designCard(baseName,d,i){
+  return `<article class="card" style="animation-delay:${Math.min(i*30,360)}ms" data-base="${baseName}" data-code="${d.code}" tabindex="0" role="button" aria-label="View ${title(d)}">
+      <div class="thumb">${imgOrPlaceholder(d, baseName+" "+title(d))}</div>
+      <div class="meta">
+        <p class="name">${title(d)}</p>
+        ${d.price ? `<div class="price">${d.price}</div>` : ``}
+      </div>
+    </article>`;
+}
+function renderCatalogue(){
+  const bases=visibleBases();
+  const shown=bases.reduce((n,b)=>n+b.designs.length,0);
+  const total=totalDesigns();
+  $("#count").textContent = (activeBase==="All" && !query.trim())
+    ? `${total} designs across ${BASES.length} categories`
+    : `${shown} of ${total} designs`;
+
+  if(!bases.length){
+    $("#catalogue").innerHTML=`<div class="empty">No designs match your search.<br><a id="clear">Clear filters</a></div>`;
+    $("#clear").addEventListener("click",()=>{ activeBase="All"; query=""; $("#search").value=""; renderFilters(); renderCatalogue(); });
+    return;
+  }
+  $("#catalogue").innerHTML = bases.map(b=>`
+    <section class="base-section">
+      <div class="base-head">
+        <h2>${b.name}</h2>
+        <span class="cnt">${b.designs.length} design${b.designs.length>1?"s":""}${b.fabric?` · ${b.fabric}`:""}</span>
+      </div>
+      <div class="grid">${b.designs.map((d,i)=>designCard(b.name,d,i)).join("")}</div>
+    </section>`).join("");
+
+  $("#catalogue").querySelectorAll(".card").forEach(card=>{
+    const b=BASES.find(x=>x.name===card.dataset.base);
+    const d=b.designs.find(x=>x.code===card.dataset.code);
+    card.addEventListener("click",()=>openModal(b,d));
+    card.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openModal(b,d); }});
+  });
+}
+function openModal(b,d){
+  $("#modal").innerHTML=`
+    <div class="m-img" id="mImg" role="button" aria-label="Tap to zoom">
+      ${imgOrPlaceholder(d, b.name+" "+title(d))}
+      <span class="zoom-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6M11 8v6"/></svg>Tap to zoom</span>
+    </div>
+    <div class="m-body">
+      <button class="close" aria-label="Close">&times;</button>
+      <div class="m-base">${b.name}</div>
+      <h2 id="mTitle">${title(d)}</h2>
+      ${d.price ? `<div class="m-code">${d.price}</div>` : ``}
+    </div>`;
+  $("#modal .close").addEventListener("click",closeModal);
+  $("#mImg").addEventListener("click",()=>openZoom(b,d));
+  $("#modalBack").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){ $("#modalBack").classList.remove("open"); document.body.style.overflow=""; }
+$("#modalBack").addEventListener("click",e=>{ if(e.target.id==="modalBack") closeModal(); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ if($("#zoomBack").classList.contains("open")) closeZoom(); else closeModal(); }
+});
+
+/* ============================================================
+   Zoom viewer — pinch / scroll / button zoom + pan
+   ============================================================ */
+let zScale=1, zX=0, zY=0, zImg=null;
+const ZMIN=1, ZMAX=5, ZSTEP=0.5;
+
+function openZoom(b,d){
+  const alt=b.name+" "+title(d);
+  $("#zoomTitle").textContent=`${title(d)} — ${d.code}`;
+  if(d.image){
+    $("#zoomContainer").innerHTML=`<img src="${d.image}" alt="${alt}" draggable="false" />`;
+  } else {
+    $("#zoomContainer").innerHTML=placeholder(d);
+  }
+  zImg=$("#zoomContainer img");
+  zScale=1; zX=0; zY=0;
+  applyZoom();
+  $("#zoomBack").classList.add("open");
+  document.body.style.overflow="hidden";
+  if(zImg) setupZoomGestures();
+}
+function closeZoom(){
+  $("#zoomBack").classList.remove("open");
+  if(!$("#modalBack").classList.contains("open")) document.body.style.overflow="";
+}
+function applyZoom(){
+  if(!zImg) return;
+  const rect=$("#zoomContainer").getBoundingClientRect();
+  const iw=zImg.naturalWidth||rect.width, ih=zImg.naturalHeight||rect.height;
+  const fitScale=Math.min(rect.width/iw, rect.height/ih);
+  const rw=iw*fitScale*zScale, rh=ih*fitScale*zScale;
+  const maxX=Math.max(0,(rw-rect.width)/2), maxY=Math.max(0,(rh-rect.height)/2);
+  zX=Math.max(-maxX,Math.min(maxX,zX));
+  zY=Math.max(-maxY,Math.min(maxY,zY));
+  zImg.style.transform=`translate(${zX}px,${zY}px) scale(${zScale})`;
+  zImg.style.transformOrigin="center center";
+  zImg.style.maxWidth="100%"; zImg.style.maxHeight="100%";
+  $("#zoomIn").disabled=zScale>=ZMAX;
+  $("#zoomOut").disabled=zScale<=ZMIN;
+}
+function zoomTo(s){ zScale=Math.max(ZMIN,Math.min(ZMAX,s)); applyZoom(); }
+
+$("#zoomIn").addEventListener("click",()=>zoomTo(zScale+ZSTEP));
+$("#zoomOut").addEventListener("click",()=>zoomTo(zScale-ZSTEP));
+$("#zoomReset").addEventListener("click",()=>{ zScale=1; zX=0; zY=0; applyZoom(); });
+$("#zoomClose").addEventListener("click",closeZoom);
+
+function setupZoomGestures(){
+  const el=$("#zoomContainer");
+  let dragging=false, startX, startY, lastDist=0;
+
+  el.addEventListener("wheel",e=>{
+    e.preventDefault();
+    zoomTo(zScale + (e.deltaY<0 ? ZSTEP : -ZSTEP));
+  },{passive:false});
+
+  el.addEventListener("pointerdown",e=>{
+    if(e.pointerType==="touch" && e.isPrimary===false) return;
+    dragging=true; startX=e.clientX-zX; startY=e.clientY-zY;
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener("pointermove",e=>{
+    if(!dragging||zScale<=1) return;
+    zX=e.clientX-startX; zY=e.clientY-startY; applyZoom();
+  });
+  el.addEventListener("pointerup",()=>{ dragging=false; });
+  el.addEventListener("pointercancel",()=>{ dragging=false; });
+
+  let lastTap=0;
+  el.addEventListener("touchend",e=>{
+    const now=Date.now();
+    if(now-lastTap<300){ e.preventDefault(); zoomTo(zScale>1?1:2.5); zX=0; zY=0; applyZoom(); }
+    lastTap=now;
+  });
+
+  el.addEventListener("touchstart",e=>{
+    if(e.touches.length===2){
+      lastDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    }
+  },{passive:true});
+  el.addEventListener("touchmove",e=>{
+    if(e.touches.length===2){
+      e.preventDefault();
+      const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+      if(lastDist) zoomTo(zScale*(dist/lastDist));
+      lastDist=dist;
+    }
+  },{passive:false});
+  el.addEventListener("touchend",()=>{ lastDist=0; });
+}
+
+function renderFooter(){
+  const links=[];
+  if(BUSINESS.phone)     links.push(`<a href="tel:${BUSINESS.phone.replace(/\s/g,'')}">${BUSINESS.phone}</a>`);
+  if(BUSINESS.email)     links.push(`<a href="mailto:${BUSINESS.email}">${BUSINESS.email}</a>`);
+  if(BUSINESS.whatsapp)  links.push(`<a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`);
+  if(BUSINESS.instagram) links.push(`<a href="https://instagram.com/${BUSINESS.instagram}" target="_blank" rel="noopener">@${BUSINESS.instagram}</a>`);
+  $("#footer").innerHTML=`
+    <div>
+      <div class="fname">${BUSINESS.name}</div>
+      ${BUSINESS.location ? `<div style="margin-top:6px">${BUSINESS.location}</div>` : ``}
+    </div>
+    <div style="text-align:right;line-height:1.9">${links.join("<br>")}</div>`;
+}
+$("#search").addEventListener("input",e=>{ query=e.target.value; renderCatalogue(); });
+
+renderHeader(); renderDrawer(); renderDrawerFilters(); renderFilters(); renderCatalogue(); renderFooter();
+</script>
+</body>
+</html>
