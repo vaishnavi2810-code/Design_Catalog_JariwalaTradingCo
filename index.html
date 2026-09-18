@@ -328,9 +328,9 @@
 const BUSINESS = {
   name:      "Jariwala Trading Co.",
   tagline:   "Quality is not expensive, it is priceless.",
-  whatsapp:  "919876543210",
+  whatsapp:  "919825112259",
   email:     "",
-  phone:     "+91 98765 43210",
+  phone:     "+91 9825112259",
   location:  "Surat, Gujarat",
   instagram: ""   // handle only, or "" to hide
 };
@@ -518,7 +518,7 @@ function renderHeader(){
   $("#brandTagline").textContent=BUSINESS.tagline;
   const bits=[];
   if(BUSINESS.location) bits.push(`<div class="loc">${BUSINESS.location}</div>`);
-  if(BUSINESS.phone)    bits.push(`<a href="tel:${BUSINESS.phone.replace(/\s/g,'')}">${BUSINESS.phone}</a>`);
+  if(BUSINESS.phone)    bits.push(`<a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener">${BUSINESS.phone}</a>`);
   if(BUSINESS.email)    bits.push(`<a href="mailto:${BUSINESS.email}">${BUSINESS.email}</a>`);
   $("#contactTop").innerHTML=bits.join("");
   document.title=BUSINESS.name+" — Saree Catalog";
@@ -535,9 +535,8 @@ function renderDrawer(){
   $("#drawerTitle").textContent=BUSINESS.name;
   const items=[];
   if(BUSINESS.location)  items.push(`<li><a href="#"><span class="label">Location</span>${BUSINESS.location}</a></li>`);
-  if(BUSINESS.phone)     items.push(`<li><a href="tel:${BUSINESS.phone.replace(/\s/g,'')}"><span class="label">Phone</span>${BUSINESS.phone}</a></li>`);
+  if(BUSINESS.phone)     items.push(`<li><a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener"><span class="label">WhatsApp</span>${BUSINESS.phone}</a></li>`);
   if(BUSINESS.email)     items.push(`<li><a href="mailto:${BUSINESS.email}"><span class="label">Email</span>${BUSINESS.email}</a></li>`);
-  if(BUSINESS.whatsapp)  items.push(`<li><a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener"><span class="label">WhatsApp</span>Chat with us</a></li>`);
   if(BUSINESS.instagram) items.push(`<li><a href="https://instagram.com/${BUSINESS.instagram}" target="_blank" rel="noopener"><span class="label">Instagram</span>@${BUSINESS.instagram}</a></li>`);
   $("#drawerContact").innerHTML=items.join("");
 }
@@ -717,7 +716,7 @@ function setupZoomGestures(){
 
 function renderFooter(){
   const links=[];
-  if(BUSINESS.phone)     links.push(`<a href="tel:${BUSINESS.phone.replace(/\s/g,'')}">${BUSINESS.phone}</a>`);
+  if(BUSINESS.phone)     links.push(`<a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener">${BUSINESS.phone}</a>`);
   if(BUSINESS.email)     links.push(`<a href="mailto:${BUSINESS.email}">${BUSINESS.email}</a>`);
   if(BUSINESS.whatsapp)  links.push(`<a href="https://wa.me/${BUSINESS.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`);
   if(BUSINESS.instagram) links.push(`<a href="https://instagram.com/${BUSINESS.instagram}" target="_blank" rel="noopener">@${BUSINESS.instagram}</a>`);
