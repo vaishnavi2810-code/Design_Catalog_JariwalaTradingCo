@@ -503,6 +503,24 @@ function title(d){ return d.color || `Design ${d.code}`; }
 
 let activeBase="All", query="";
 
+/* Each category gets its own link: index.html#tussar-gala-chit-pallu */
+function slug(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+function baseFromHash(){
+  const h=decodeURIComponent(location.hash.slice(1)).toLowerCase();
+  const b=BASES.find(x=>slug(x.name)===h);
+  return b ? b.name : "All";
+}
+function setBase(name){
+  activeBase=name;
+  const hash = name==="All" ? "" : "#"+slug(name);
+  history.replaceState(null,"",location.pathname+location.search+hash);
+  renderFilters(); renderDrawerFilters(); renderCatalogue(); updateFilterLabel();
+}
+window.addEventListener("hashchange",()=>{
+  activeBase=baseFromHash();
+  renderFilters(); renderDrawerFilters(); renderCatalogue(); updateFilterLabel();
+});
+
 function visibleBases(){
   const q=query.trim().toLowerCase();
   return BASES
@@ -546,8 +564,7 @@ function renderDrawerFilters(){
     `<button aria-pressed="${f===activeBase}" data-base="${f}">${f}</button>`).join("");
   $("#drawerFilters").querySelectorAll("button").forEach(btn=>
     btn.addEventListener("click",()=>{
-      activeBase=btn.dataset.base;
-      renderFilters(); renderDrawerFilters(); renderCatalogue(); updateFilterLabel();
+      setBase(btn.dataset.base);
       closeDrawer();
     }));
 }
@@ -560,7 +577,7 @@ function renderFilters(){
   $("#filters").innerHTML=names.map(f=>
     `<button class="chip" aria-pressed="${f===activeBase}" data-base="${f}">${f}</button>`).join("");
   $("#filters").querySelectorAll(".chip").forEach(c=>
-    c.addEventListener("click",()=>{ activeBase=c.dataset.base; renderFilters(); renderDrawerFilters(); renderCatalogue(); updateFilterLabel(); }));
+    c.addEventListener("click",()=>setBase(c.dataset.base)));
 }
 function designCard(baseName,d,i){
   return `<article class="card" style="animation-delay:${Math.min(i*30,360)}ms" data-base="${baseName}" data-code="${d.code}" tabindex="0" role="button" aria-label="View ${title(d)}">
@@ -581,7 +598,7 @@ function renderCatalogue(){
 
   if(!bases.length){
     $("#catalogue").innerHTML=`<div class="empty">No designs match your search.<br><a id="clear">Clear filters</a></div>`;
-    $("#clear").addEventListener("click",()=>{ activeBase="All"; query=""; $("#search").value=""; renderFilters(); renderCatalogue(); });
+    $("#clear").addEventListener("click",()=>{ query=""; $("#search").value=""; setBase("All"); });
     return;
   }
   $("#catalogue").innerHTML = bases.map(b=>`
@@ -729,7 +746,8 @@ function renderFooter(){
 }
 $("#search").addEventListener("input",e=>{ query=e.target.value; renderCatalogue(); });
 
-renderHeader(); renderDrawer(); renderDrawerFilters(); renderFilters(); renderCatalogue(); renderFooter();
+activeBase=baseFromHash();
+renderHeader(); renderDrawer(); renderDrawerFilters(); renderFilters(); renderCatalogue(); updateFilterLabel(); renderFooter();
 </script>
 </body>
 </html>
